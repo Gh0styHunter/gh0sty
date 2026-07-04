@@ -1,0 +1,7 @@
+gh0sty Framework Security Report PDF Template
+=============================================
+Target: {{TARGET}}
+Module: {{MODULE}}
+Timestamp: {{TIMESTAMP}}
+
+{{CONTENT}}
