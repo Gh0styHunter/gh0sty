@@ -1,53 +1,53 @@
-# Contributing to gh0sty
+# Contribuindo para o gh0sty
 
-Thank you for showing interest in improving the **gh0sty** framework! We welcome all contributions, including bug fixes, new modules, security checks, documentation updates, and pull requests.
+Obrigado por demonstrar interesse em melhorar o framework **gh0sty**! Agradecemos todas as contribuições, incluindo correções de bugs, novos módulos, verificações de segurança, atualizações de documentação e pull requests.
 
-## Code of Conduct
+## Código de Conduta
 
-Please behave professionally and treat all contributors with respect. This project is built for ethical, authorized target auditing only.
+Por favor, comporte-se profissionalmente e trate todos os colaboradores com respeito. Este projeto foi desenvolvido apenas para fins éticos e de auditoria de alvos autorizada.
 
-## Development Setup
+## Configuração do Ambiente de Desenvolvimento
 
-To configure your development environment:
+Para configurar seu ambiente de desenvolvimento:
 
-1. Clone this repository:
+1. Clone este repositório:
    ```bash
-   git clone https://github.com/jacksonfb/gh0sty.git
+   git clone https://github.com/Gh0styHunter/gh0sty.git
    cd gh0sty
    ```
 
-2. Setup virtual environment:
+2. Configure o ambiente virtual:
    ```bash
    python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   source .venv/bin/activate  # No Windows: .venv\Scripts\activate
    ```
 
-3. Install development dependencies:
+3. Instale as dependências de desenvolvimento:
    ```bash
    pip install -e ".[dev]"
    ```
 
-## Development Guidelines
+## Diretrizes de Desenvolvimento
 
-Before opening a pull request, ensure your code respects our quality guidelines:
+Antes de abrir um pull request, certifique-se de que seu código respeita nossas diretrizes de qualidade:
 
-- **Type Hints**: All functions and classes must be statically typed.
-- **Docstrings**: Use PEP 257 Google style docstrings.
-- **Formatting**: Format your code using `black` (line limit: 100):
+- **Type Hints (Dicas de Tipo)**: Todas as funções e classes devem ser estaticamente tipadas.
+- **Docstrings**: Use docstrings no estilo Google da PEP 257.
+- **Formatação**: Formate seu código usando `black` (limite de linha: 100):
   ```bash
   black .
   ```
-- **Linting**: Keep code clean of warnings using `ruff`:
+- **Linting**: Mantenha o código livre de avisos usando `ruff`:
   ```bash
   ruff check .
   ```
-- **Static Analysis**: Verify typing correctness with `mypy`:
+- **Análise Estática**: Verifique a correção da tipagem com `mypy`:
   ```bash
   mypy gh0sty tests
   ```
-- **Testing**: Ensure all tests pass:
+- **Testes**: Garanta que todos os testes passem:
   ```bash
   pytest
   ```
 
-Thank you for keeping **gh0sty** clean, secure, and professional!
+Obrigado por manter o **gh0sty** limpo, seguro e profissional!

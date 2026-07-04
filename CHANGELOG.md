@@ -1,17 +1,17 @@
 # Changelog
 
-All notable changes to the **gh0sty** framework will be documented in this file.
+Todas as mudanças notáveis no framework **gh0sty** serão documentadas neste arquivo.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+e este projeto segue o [Versionamento Semântico](https://semver.org/spec/v2.0.0.html) (Semantic Versioning).
 
 ## [1.0.0] - 2026-07-01
 
-### Added
-- **Core Engine**: Fully configurable runtime structure supporting custom logging levels (`Rich` console + file log) and custom local settings.
-- **Scan module**: Host identification, IP mapping, and concurrent TCP port scan capabilities (replaces `inventory`).
-- **Web module**: HTTP banner/headers parsing, cookie audit flags, redirection history logging, and SSL/TLS peer certificate parsing (replaces `webinfo`).
-- **DNS module**: Comprehensive A, AAAA, MX, TXT, NS, SOA, CNAME, and PTR record resolution.
-- **Report module**: Convert raw JSON scanning results into CSV, Markdown, PDF, XML, TXT, and cyberpunk dark-themed HTML report templates.
-- **Documentation**: Professional README, contributing guidelines, architecture flowmaps, and licensing.
-- **CI/CD pipeline**: Automated lint checks (`Ruff`), format checks (`Black`), static typing validation (`Mypy`), and unit tests suite (`PyTest`).
+### Adicionado
+- **Mecanismo Principal (Core)**: Estrutura de tempo de execução totalmente configurável que suporta níveis de log personalizados (console `Rich` + log em arquivo) e configurações locais personalizadas.
+- **Módulo Scan**: Identificação de hosts, mapeamento de IPs e recursos de varredura concorrente de portas TCP (substitui `inventory`).
+- **Módulo Web**: Parsing de cabeçalhos/banners HTTP, flags de auditoria de cookies, registro de histórico de redirecionamentos e parsing de certificados SSL/TLS (substitui `webinfo`).
+- **Módulo DNS**: Resolução abrangente de registros A, AAAA, MX, TXT, NS, SOA, CNAME e PTR.
+- **Módulo Report**: Converte resultados brutos de varredura em JSON, CSV, Markdown, PDF, XML, TXT e templates de relatório HTML com tema cyberpunk escuro.
+- **Documentação**: README profissional, diretrizes de contribuição, fluxos de arquitetura e licenciamento.
+- **Pipeline de CI/CD**: Verificações automáticas de lint (`Ruff`), formatação de código (`Black`), validação de tipagem estática (`Mypy`) e suíte de testes unitários (`PyTest`).
