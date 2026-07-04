@@ -12,7 +12,7 @@ Para configurar seu ambiente de desenvolvimento:
 
 1. Clone este repositório:
    ```bash
-   git clone https://github.com/Gh0styHunter/gh0sty.git
+   git clone https://github.com/Gh0styHunter/gh0sty.git gh0sty
    cd gh0sty
    ```
 
