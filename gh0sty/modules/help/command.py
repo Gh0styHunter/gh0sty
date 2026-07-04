@@ -40,7 +40,7 @@ class HelpCommand(BaseModule):
         console.print("  gh0sty <comando> [opções]\n")
 
         console.print("[bold cyan]Opções Globais:[/bold cyan]")
-        console.print("  -h, --help     Exibe esta mensagem de ajuda e sair")
+        console.print("  -h, --help     exibe essa mensagem de ajuda")
         console.print("  -v, --verbose  Habilita mensagens de log detalhadas (DEBUG)\n")
 
         # Tabela com a lista de módulos

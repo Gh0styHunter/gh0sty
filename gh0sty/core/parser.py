@@ -16,7 +16,7 @@ def parse_arguments() -> argparse.Namespace:
         description="gh0sty - Framework de Inventário e Auditoria de Segurança",
         add_help=False,
     )
-    parser.add_argument("-h", "--help", action="store_true", help="Exibe esta mensagem de ajuda e sair")
+    parser.add_argument("-h", "--help", action="store_true", help="exibe essa mensagem de ajuda")
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="Habilita mensagens de log detalhadas (DEBUG)"
     )
@@ -47,7 +47,7 @@ def parse_arguments() -> argparse.Namespace:
     # Register each subcommand's parser arguments
     for cmd_name, cmd_class in module_commands.items():
         cmd_parser = subparsers.add_parser(cmd_name, help=cmd_class.help_summary, add_help=False)
-        cmd_parser.add_argument("-h", "--help", action="help", help="Exibe esta mensagem de ajuda e sair")
+        cmd_parser.add_argument("-h", "--help", action="help", help="exibe essa mensagem de ajuda")
         cmd_class.configure_parser(cmd_parser)
 
     # Direct fallback if help requested on general interface
