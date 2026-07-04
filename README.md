@@ -43,7 +43,7 @@ A base de código está organizada em camadas de componentes isoladas para garan
 
 ## 📦 Instalação
 
-Para instalar o **gh0sty** globalmente ou em seu ambiente atual:
+Para instalar o **gh0sty** e disponibilizar o comando `gh0sty` globalmente no sistema:
 
 1. **Clone o repositório**:
    ```bash
@@ -51,16 +51,16 @@ Para instalar o **gh0sty** globalmente ou em seu ambiente atual:
    cd gh0sty
    ```
 
-2. **Configure um Ambiente Virtual**:
+2. **Instale o pacote no seu ambiente Python**:
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # No Windows: .venv\Scripts\activate
+   pip install -e .
    ```
+   *(Caso queira instalar dependências de desenvolvimento, use: `pip install -e ".[dev]"`)*
 
-3. **Instale as dependências padrão e de desenvolvimento**:
-   ```bash
-   pip install -e ".[dev]"
-   ```
+Após a instalação, o executável `gh0sty` ficará disponível globalmente. Você poderá rodar a ferramenta diretamente de qualquer diretório sem precisar ativar manualmente o ambiente virtual ou acessar a pasta do projeto:
+```bash
+gh0sty scan -t 192.168.1.10
+```
 
 ---
 
@@ -68,12 +68,12 @@ Para instalar o **gh0sty** globalmente ou em seu ambiente atual:
 
 Realize uma varredura básica de portas TCP em um host alvo autorizado:
 ```bash
-gh0sty scan -t example.com -p 22,80,443 -f html -o gh0sty/output/html/inventory_report.html
+gh0sty scan -t example.com -p 22,80,443 -f html -o scan.html
 ```
 
 Audite as configurações de SSL/TLS e cookies de uma aplicação web:
 ```bash
-gh0sty web -t https://example.com -f md -o gh0sty/output/markdown/web_audit.md
+gh0sty web -t https://example.com -f md -o web_audit.md
 ```
 
 Explore registros DNS para um domínio alvo:

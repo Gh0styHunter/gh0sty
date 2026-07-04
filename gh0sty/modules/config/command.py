@@ -13,18 +13,18 @@ from gh0sty.modules.base import BaseModule
 class ConfigCommand(BaseModule):
     """Subcommand to view or update system configurations."""
 
-    help_summary = "Manage and view configuration parameters"
+    help_summary = "Gerencia e exibe parâmetros de configuração"
 
     @staticmethod
     def configure_parser(parser: argparse.ArgumentParser) -> None:
         """Configures the argparse arguments for the config subcommand."""
         group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument("--show", action="store_true", help="Display all configuration settings")
+        group.add_argument("--show", action="store_true", help="Exibe todas as configurações")
         group.add_argument(
             "--set",
             nargs=2,
-            metavar=("KEY", "VALUE"),
-            help="Set configuration setting key to value (e.g. --set threads 25)",
+            metavar=("CHAVE", "VALOR"),
+            help="Define a chave de configuração com o valor especificado (ex. --set threads 25)",
         )
 
     def run(self, args: argparse.Namespace) -> None:

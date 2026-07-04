@@ -8,9 +8,9 @@ CONFIG_FILE = DEFAULT_CONFIG_DIR / "config.json"
 
 # Package relative folders
 PACKAGE_ROOT = Path(__file__).parent.parent
-DEFAULT_OUTPUT_DIR = PACKAGE_ROOT / "output"
+DEFAULT_OUTPUT_DIR = Path.cwd()
 DEFAULT_TEMPLATES_DIR = PACKAGE_ROOT / "templates"
-DEFAULT_LOGS_DIR = PACKAGE_ROOT / "logs"
+DEFAULT_LOGS_DIR = DEFAULT_CONFIG_DIR / "logs"
 
 # Scanner settings
 DEFAULT_THREADS = 10

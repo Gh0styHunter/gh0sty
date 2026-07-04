@@ -90,21 +90,21 @@ class ReportGenerator:
 class ReportCommand(BaseModule):
     """Subcommand parser routing raw JSON scans conversion requests."""
 
-    help_summary = "Compile raw JSON scan files into human-readable reports"
+    help_summary = "Compila arquivos de varredura JSON brutos em relatórios legíveis por humanos"
 
     @staticmethod
     def configure_parser(parser: argparse.ArgumentParser) -> None:
         """Configures the argparse arguments for the report subcommand."""
-        parser.add_argument("-i", "--input", required=True, help="Path to raw JSON scan file")
+        parser.add_argument("-i", "--input", required=True, help="Caminho para o arquivo de varredura JSON bruto")
         parser.add_argument(
             "-f",
             "--format",
             required=True,
             choices=["json", "csv", "html", "md", "pdf", "txt", "xml"],
-            help="Target output format type",
+            help="Tipo de formato de saída de destino",
         )
         parser.add_argument(
-            "-o", "--output", required=True, help="Target report output filename path"
+            "-o", "--output", required=True, help="Caminho do nome do arquivo de saída do relatório de destino"
         )
 
     def run(self, args: argparse.Namespace) -> None:
