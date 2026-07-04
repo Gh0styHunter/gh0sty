@@ -10,7 +10,7 @@ from rich.progress import (
 )
 
 
-def create_progress_bar(description: str = "Processando...") -> Progress:
+def create_progress_bar(description: str = "Executando...") -> Progress:
     """Instantiates a standardized Rich Progress instance.
 
     Args:

@@ -41,14 +41,14 @@ def test_config_validation(tmp_path: Any) -> None:
     manager = ConfigManager(config_path=config_file)
 
     # Invalid key
-    with pytest.raises(ConfigError, match="Chave de configuração inválida"):
+    with pytest.raises(ConfigError, match="Parâmetro inválido"):
         manager.set("nonexistent_key", "value")
 
-    # Invalid value type (triggers type error matching regex "deve ser do tipo")
-    with pytest.raises(ConfigError, match="deve ser do tipo"):
+    # Invalid value type (triggers type error matching regex "Tipo de dado inválido")
+    with pytest.raises(ConfigError, match="Tipo de dado inválido"):
         manager.set("threads", "twenty")
 
-    with pytest.raises(ConfigError, match="deve ser do tipo"):
+    with pytest.raises(ConfigError, match="Tipo de dado inválido"):
         manager.set("timeout", "two point five")
 
     # Float coercion from int/str

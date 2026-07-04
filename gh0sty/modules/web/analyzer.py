@@ -37,10 +37,10 @@ class WebApplicationAnalyzer:
         host = clean_target(raw_target)
         if not is_valid_domain(host) and not is_valid_ip(host):
             raise ValidationError(
-                f"Host alvo inválido detectado a partir de '{raw_target}'. Verifique o formato."
+                f"Alvo inválido: '{raw_target}'"
             )
 
-        logger.info(f"URL Alvo: [bold cyan]{url}[/bold cyan] (Host: {host})")
+        logger.info("Coletando informações do alvo...")
 
         timeout = config_manager.get("timeout")
         session = ScanSession(module_name="web", target=host)
@@ -58,7 +58,7 @@ class WebApplicationAnalyzer:
             "technologies": [],
         }
 
-        logger.info(f"Enviando requisição HTTP GET (tempo limite={timeout}s)...")
+        logger.info("Executando varredura web...")
         try:
             # Call http utility wrapper
             response = http_util.fetch_url(url, timeout=timeout, verify_ssl=False)
@@ -103,13 +103,11 @@ class WebApplicationAnalyzer:
             )
 
         except httpx.HTTPError as e:
-            logger.warning(f"A requisição HTTP GET encontrou um erro: {e}")
+            logger.warning(f"Falha na requisição HTTP: {e}")
             results["error"] = str(e)
             if url.startswith("https://") and not raw_target.startswith("https://"):
                 fallback_url = url.replace("https://", "http://")
-                logger.info(
-                    f"Tentando fallback para não criptografado: [yellow]{fallback_url}[/yellow]..."
-                )
+                logger.info("Executando varredura web...")
                 try:
                     response = http_util.fetch_url(fallback_url, timeout=timeout, verify_ssl=False)
                     results["http_status"] = response.status_code
@@ -123,13 +121,13 @@ class WebApplicationAnalyzer:
                         }
                     results["technologies"] = fingerprint_web_technologies(results["headers"], [])
                 except Exception as ex:
-                    logger.error(f"A requisição de fallback falhou: {ex}")
+                    logger.error(f"Falha na requisição de fallback: {ex}")
         except Exception as e:
-            logger.error(f"Falha ao concluir a inspeção HTTP: {e}")
+            logger.error(f"Falha na análise web: {e}")
             results["error"] = str(e)
 
         if url.startswith("https://") or "https" in [r["url"] for r in results["redirects"]]:
-            logger.info("Extraindo detalhes do certificado TLS...")
+            logger.info("Coletando informações do alvo...")
             ssl_details = net.get_ssl_details(host, timeout=timeout)
             results["ssl_info"] = ssl_details
 
@@ -141,22 +139,23 @@ class WebApplicationAnalyzer:
             from gh0sty.modules.report.manager import ReportGenerator
 
             try:
+                logger.info("Gerando relatório...")
                 generator = ReportGenerator(
                     session_dict=session.to_dict(), module_name="web", target=host
                 )
                 generator.generate(out_format, args.output)
                 console.print(
-                    f"\n[bold green]Relatório exportado com sucesso para {args.output} ({out_format})[/bold green]"
+                    f"\n[bold green]Relatório gerado em: {args.output}[/bold green]"
                 )
             except Exception as e:
-                logger.error(f"Falha ao gerar a exportação do relatório: {e}")
-                raise ScanError(f"Falha na geração do relatório: {e}") from e
+                logger.error(f"Falha ao gerar relatório: {e}")
+                raise ScanError(f"Falha ao gerar relatório: {e}") from e
 
     def _display_summary(self, results: dict[str, Any]) -> None:
         """Presents webinfo audit results in rich panels and tables."""
         if results.get("error") and not results.get("http_status"):
             console.print(
-                f"[bold red]A Auditoria Web Falhou:[/bold red] Não foi possível concluir a requisição HTTP. "
+                f"[bold red]Falha na Auditoria Web:[/bold red] Não foi possível concluir a requisição HTTP. "
                 f"Detalhes: {results['error']}"
             )
             return
@@ -165,33 +164,33 @@ class WebApplicationAnalyzer:
         status_display = "Falhou" if status == "Failed" else status
         server = results.get("server", "Unknown")
         server_display = "Desconhecido" if server == "Unknown" else server
-        techs_str = ", ".join(results.get("technologies", [])) or "Nenhuma Identificada"
+        techs_str = ", ".join(results.get("technologies", [])) or "Nenhuma detectada"
 
         summary_text = (
-            f"[bold green]Status HTTP Final:[/bold green] [cyan]{status_display}[/cyan]\n"
-            f"[bold green]Cabeçalho Server:[/bold green] {server_display}\n"
-            f"[bold green]Tecnologias Estimadas:[/bold green] {techs_str}"
+            f"[bold green]Status HTTP:[/bold green] [cyan]{status_display}[/cyan]\n"
+            f"[bold green]Servidor (Header):[/bold green] {server_display}\n"
+            f"[bold green]Tecnologias Detectadas:[/bold green] {techs_str}"
         )
         panel = Panel(
             summary_text,
-            title="Informações Básicas da Aplicação Web",
+            title="Informações Coletadas",
             border_style="cyan",
             expand=False,
         )
         console.print(panel)
 
         if results.get("redirects"):
-            console.print("\n[bold cyan]Cadeia de Redirecionamento:[/bold cyan]")
+            console.print("\n[bold cyan]Redirecionamentos:[/bold cyan]")
             flow = []
             for r in results["redirects"]:
                 flow.append(f"[yellow]{r['status_code']}[/yellow] {r['url']}")
             flow.append(f"[green]{status_display}[/green] {results['url']}")
             console.print("  -> ".join(flow))
 
-        headers_table = Table(title="Status dos Cabeçalhos de Segurança", border_style="cyan")
-        headers_table.add_column("Cabeçalho de Segurança", style="bold green")
-        headers_table.add_column("Presença", style="white")
-        headers_table.add_column("Valor / Diretiva", style="white")
+        headers_table = Table(title="Cabeçalhos de Segurança", border_style="cyan")
+        headers_table.add_column("Cabeçalho", style="bold green")
+        headers_table.add_column("Status", style="white")
+        headers_table.add_column("Valor", style="white")
 
         for key, val in results.get("security_headers", {}).items():
             presence = (
@@ -204,10 +203,10 @@ class WebApplicationAnalyzer:
         console.print(headers_table)
 
         if results.get("cookies"):
-            cookies_table = Table(title="Auditoria de Cookies da Aplicação", border_style="cyan")
-            cookies_table.add_column("Nome do Cookie", style="bold green")
-            cookies_table.add_column("Fragmento do Valor", style="white")
-            cookies_table.add_column("Seguro", style="white")
+            cookies_table = Table(title="Cookies Detectados", border_style="cyan")
+            cookies_table.add_column("Cookie", style="bold green")
+            cookies_table.add_column("Valor (Parcial)", style="white")
+            cookies_table.add_column("Secure", style="white")
             cookies_table.add_column("HttpOnly", style="white")
 
             for c in results["cookies"]:
@@ -230,20 +229,20 @@ class WebApplicationAnalyzer:
             valid_to_display = "Desconhecido" if cert.get('valid_to') == "Unknown" else cert.get('valid_to')
             ssl_text = (
                 f"[bold green]Versão do TLS:[/bold green] {ssl_info.get('tls_version')}\n"
-                f"[bold green]Suíte de Cifragem:[/bold green] {ssl_info.get('cipher_name')} ({ssl_info.get('cipher_bits')} bits)\n"
-                f"[bold green]Assunto (CN):[/bold green] [cyan]{subject_display}[/cyan]\n"
-                f"[bold green]Emissor:[/bold green] {issuer_display}\n"
+                f"[bold green]Cipher Suite:[/bold green] {ssl_info.get('cipher_name')} ({ssl_info.get('cipher_bits')} bits)\n"
+                f"[bold green]Subject (CN):[/bold green] [cyan]{subject_display}[/cyan]\n"
+                f"[bold green]Issuer:[/bold green] {issuer_display}\n"
                 f"[bold green]Dias Restantes:[/bold green] {cert.get('days_remaining')} (Válido até {valid_to_display})"
             )
             ssl_panel = Panel(
-                ssl_text, title="Informações do Certificado SSL/TLS", border_style="cyan", expand=False
+                ssl_text, title="Certificado SSL/TLS", border_style="cyan", expand=False
             )
             console.print(ssl_panel)
         elif ssl_info.get("error"):
             console.print(
-                f"\n[bold yellow]Consulta SSL/TLS ignorada ou falhou:[/bold yellow] {ssl_info['error']}"
+                f"\n[bold yellow]Consulta SSL/TLS falhou:[/bold yellow] {ssl_info['error']}"
             )
         else:
             console.print(
-                "\n[bold yellow]Nenhum detalhe de SSL/TLS obtido (conexão HTTP).[/bold yellow]"
+                "\n[bold yellow]Nenhum certificado SSL/TLS detectado.[/bold yellow]"
             )

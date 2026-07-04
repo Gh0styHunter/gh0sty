@@ -29,12 +29,10 @@ class ReconCoordinator:
 
         if not is_ip and not is_domain:
             raise ValidationError(
-                f"Formato de alvo inválido: '{raw_target}'. Deve ser um domínio ou endereço IP válido."
+                f"Alvo inválido: '{raw_target}'"
             )
 
-        logger.info(
-            f"Iniciando auditoria consolidada de reconhecimento para o alvo: [bold cyan]{target}[/bold cyan]"
-        )
+        logger.info("Iniciando auditoria...")
 
         session = ScanSession(module_name="recon", target=target)
         timer = Timer()
@@ -45,7 +43,7 @@ class ReconCoordinator:
         recon_data = collector.gather_metadata(target)
 
         # 2. Port scan (top 5 essential ports for quick recon consolidation)
-        logger.info("Executando varredura básica de portas ativas...")
+        logger.info("Verificando portas TCP...")
         resolved_ips = [target]
         if is_domain:
             res = net.resolve_host(target)
@@ -77,41 +75,41 @@ class ReconCoordinator:
             from gh0sty.modules.report.manager import ReportGenerator
 
             try:
+                logger.info("Gerando relatório...")
                 generator = ReportGenerator(
                     session_dict=session.to_dict(), module_name="recon", target=target
                 )
                 generator.generate(out_format, args.output)
                 console.print(
-                    f"\n[bold green]Relatório exportado com sucesso para {args.output} ({out_format})[/bold green]"
+                    f"\n[bold green]Relatório gerado em: {args.output}[/bold green]"
                 )
             except Exception as e:
-                logger.error(f"Falha ao gerar a exportação do relatório: {e}")
-                raise ScanError(f"Falha na geração do relatório: {e}") from e
+                logger.error(f"Falha ao gerar relatório: {e}")
+                raise ScanError(f"Falha ao gerar relatório: {e}") from e
 
     def _display_summary(self, target: str, data: dict[str, Any], duration: float) -> None:
         """Presents consolidated recon results in panels."""
         dns = data.get("dns_records", {})
+        ptr_val = data.get("reverse_dns", "None")
+        ptr_display = "Não encontrado" if ptr_val in ["None", "none", None] else ptr_val
+
+        ports = data.get("open_ports", [])
+        ports_list = [str(p.get("port")) for p in ports]
+        ports_display = ", ".join(ports_list) if ports_list else "Nenhuma detectada"
+
         dns_lines = []
         for rtype, records in dns.items():
             if records:
                 dns_lines.append(f"  [bold green]{rtype}:[/bold green] {', '.join(records)}")
-        dns_str = (
-            "\n".join(dns_lines) if dns_lines else f"  Host Reverso: {data.get('reverse_dns')}"
-        )
-
-        ports = data.get("open_ports", [])
-        ports_lines = []
-        for p in ports:
-            ports_lines.append(
-                f"  - IP: {p.get('ip')} | Port: {p.get('port')} | Service: {p.get('service')}"
-            )
-        ports_str = "\n".join(ports_lines) if ports_lines else "  Nenhuma porta padrão aberta detectada."
+        dns_infra_str = "\n" + "\n".join(dns_lines) if dns_lines else ""
 
         summary_text = (
-            f"[bold cyan]Resultados consolidados de Recon para {target}[/bold cyan]\n\n"
-            f"[bold green]Base da Infraestrutura DNS:[/bold green]\n{dns_str}\n\n"
-            f"[bold green]Portas TCP Essenciais Abertas:[/bold green]\n{ports_str}\n\n"
-            f"[bold green]Tempo de execução:[/bold green] {duration:.2f} segundos"
+            f"DNS Reverso (PTR):      {ptr_display}\n"
+            f"Portas TCP abertas:     {ports_display}\n"
+            f"Tempo de execução:      {duration:.2f} segundos"
         )
-        panel = Panel(summary_text, border_style="cyan", title="Reconhecimento Básico", expand=False)
+        if dns_infra_str.strip():
+            summary_text += f"\n\n[bold green]Infraestrutura DNS:[/bold green]{dns_infra_str}"
+
+        panel = Panel(summary_text, border_style="cyan", title="Resumo do Reconhecimento", expand=False)
         console.print(panel)

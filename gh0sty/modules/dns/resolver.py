@@ -31,10 +31,10 @@ class DnsResolver:
 
         if not is_ip and not is_domain:
             raise ValidationError(
-                f"Alvo inválido: '{raw_target}'. Deve ser um domínio ou endereço IP válido."
+                f"Alvo inválido: '{raw_target}'"
             )
 
-        logger.info(f"Iniciando consultas DNS para o alvo: [bold cyan]{target}[/bold cyan]")
+        logger.info("Consultando registros DNS...")
 
         req_record = args.record.upper()
         records_to_query = []
@@ -44,7 +44,7 @@ class DnsResolver:
             records_to_query = [req_record]
         else:
             raise ValidationError(
-                f"Tipo de registro não suportado: '{args.record}'. Suportados: {', '.join(SUPPORTED_RECORDS)} ou 'all'"
+                f"Registro DNS não suportado: '{args.record}'"
             )
 
         results: dict[str, Any] = {}
@@ -58,13 +58,13 @@ class DnsResolver:
                 ptr_resolved = dns_util.resolve_ptr_record(target)
                 if ptr_resolved:
                     resolved_domain = ptr_resolved[0].rstrip(".")
-                    logger.info(
-                        f"IP {target} resolvido para o domínio [cyan]{resolved_domain}[/cyan]. Executando outras consultas..."
+                    logger.debug(
+                        f"DNS Reverso (PTR) resolvido para {resolved_domain}. Buscando registros adicionais..."
                     )
                     for rtype in records_to_query:
                         results[rtype] = dns_util.resolve_dns_record(resolved_domain, rtype)
                 else:
-                    logger.warning(f"Não foi possível realizar a resolução reversa de {target} para executar outras consultas DNS.")
+                    logger.warning("Falha ao resolver DNS Reverso (PTR).")
                     for rtype in records_to_query:
                         results[rtype] = []
         else:
@@ -90,22 +90,23 @@ class DnsResolver:
             from gh0sty.modules.report.manager import ReportGenerator
 
             try:
+                logger.info("Gerando relatório...")
                 generator = ReportGenerator(
                     session_dict=session.to_dict(), module_name="dns", target=target
                 )
                 generator.generate(out_format, args.output)
                 console.print(
-                    f"\n[bold green]Relatório exportado com sucesso para {args.output} ({out_format})[/bold green]"
+                    f"\n[bold green]Relatório gerado em: {args.output}[/bold green]"
                 )
             except Exception as e:
-                logger.error(f"Falha ao gerar a exportação do relatório: {e}")
-                raise ScanError(f"Falha na geração do relatório: {e}") from e
+                logger.error(f"Falha ao gerar relatório: {e}")
+                raise ScanError(f"Falha ao gerar relatório: {e}") from e
 
     def _display_results(self, target: str, results: dict[str, list[str]]) -> None:
         """Presents resolved DNS records in a formatted table."""
-        table = Table(title=f"Registros DNS para {target}", border_style="cyan")
-        table.add_column("Tipo de Registro", style="bold green", width=15)
-        table.add_column("Valor / Saída Resolvida", style="white")
+        table = Table(title=f"Registros DNS: {target}", border_style="cyan")
+        table.add_column("Registro", style="bold green", width=15)
+        table.add_column("Resultado", style="white")
 
         for rtype, records in results.items():
             if records:
@@ -113,6 +114,6 @@ class DnsResolver:
                     label = rtype if idx == 0 else ""
                     table.add_row(label, record)
             else:
-                table.add_row(rtype, "[dim yellow]Nenhum registro encontrado[/dim yellow]")
+                table.add_row(rtype, "[dim yellow]Nenhum resultado encontrado[/dim yellow]")
 
         console.print(table)

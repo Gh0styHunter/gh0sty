@@ -25,7 +25,7 @@ def resolve_dns_record(domain: str, rtype: str) -> list[str]:
     except dns.resolver.NoAnswer:
         return []
     except dns.resolver.NXDOMAIN as e:
-        raise ScanError(f"O domínio '{domain}' não existe.") from e
+        raise ScanError(f"Domínio inexistente: '{domain}'") from e
     except DNSException as e:
         logger.debug(f"Exceção de resolução DNS em {domain} ({rtype}): {e}")
         return []

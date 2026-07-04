@@ -15,7 +15,7 @@ def grab_banner(ip: str, port: int, timeout: float = 2.0) -> str | None:
                 sock.sendall(b"HEAD / HTTP/1.0\r\n\r\n")
             elif port in [443, 8443]:
                 # SSL handshakes are handled separately, banner grab is skipped
-                return "Serviço SSL/TLS"
+                return "SSL/TLS"
             banner = sock.recv(512).decode("utf-8", errors="ignore").strip()
             return banner.split("\n")[0] if banner else None
     except Exception:

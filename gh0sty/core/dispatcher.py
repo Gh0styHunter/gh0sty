@@ -63,4 +63,4 @@ class CommandDispatcher:
             module_instance = cmd_class()
             module_instance.run(self.args)
         else:
-            raise Gh0styException(f"Comando desconhecido: '{cmd}'")
+            raise Gh0styException(f"Comando inválido: '{cmd}'")

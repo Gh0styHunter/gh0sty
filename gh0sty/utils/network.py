@@ -81,7 +81,7 @@ def scan_port(ip: str, port: int, timeout: float = 2.0) -> dict[str, Any] | None
             if result == 0:
                 return {"port": port, "state": "open", "service": get_service_name(port)}
     except Exception as e:
-        logger.debug(f"Erro de socket ao escanear a porta {port} em {ip}: {e}")
+        logger.debug(f"Erro de socket na porta {port} em {ip}: {e}")
 
     return None
 
@@ -126,7 +126,7 @@ def parse_ssl_cert(cert_dict: dict[str, Any] | None) -> dict[str, Any]:
                     parsed["days_remaining"] = days_left
                     parsed["expired"] = days_left < 0
             except Exception as e:
-                logger.debug(f"Falha ao analisar a data SSL '{date_str}': {e}")
+                logger.debug(f"Falha ao processar data do certificado SSL '{date_str}': {e}")
         else:
             parsed[clean_key] = "Unknown"
 

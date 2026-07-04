@@ -19,7 +19,7 @@ class ReconCollector:
         Returns:
             Dictionary detailing gathered recon details.
         """
-        logger.info(f"ReconCollector obtendo perfil ativo para {target}...")
+        logger.info("Coletando informações do alvo...")
         meta: dict[str, Any] = {"target": target, "dns_records": {}, "reverse_dns": "None"}
 
         # IP reverse lookup

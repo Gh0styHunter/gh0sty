@@ -82,28 +82,28 @@ def parse_ports(ports_str: str) -> list[int]:
         if "-" in part:
             sub_parts = part.split("-")
             if len(sub_parts) != 2:
-                raise ValidationError(f"Formato de intervalo de portas inválido: '{part}'")
+                raise ValidationError(f"Intervalo de portas inválido: '{part}'")
             try:
                 start = int(sub_parts[0])
                 end = int(sub_parts[1])
             except ValueError as e:
-                raise ValidationError(f"O limite do intervalo de portas deve ser numérico: '{part}'") from e
+                raise ValidationError(f"Limite de portas deve ser numérico: '{part}'") from e
 
             if start > end:
                 start, end = end, start
 
             if start < 1 or end > 65535:
-                raise ValidationError(f"As portas devem estar entre 1 e 65535. Fora do intervalo: '{part}'")
+                raise ValidationError(f"Porta fora do intervalo (1-65535): '{part}'")
 
             ports.update(range(start, end + 1))
         else:
             try:
                 port = int(part)
             except ValueError as e:
-                raise ValidationError(f"A porta deve ser um número inteiro: '{part}'") from e
+                raise ValidationError(f"Porta deve ser um número inteiro: '{part}'") from e
 
             if port < 1 or port > 65535:
-                raise ValidationError(f"A porta deve estar entre 1 e 65535. Fora do intervalo: '{port}'")
+                raise ValidationError(f"Porta fora do intervalo (1-65535): '{port}'")
 
             ports.add(port)
 

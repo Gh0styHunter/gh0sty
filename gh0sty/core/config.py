@@ -42,9 +42,9 @@ class ConfigManager:
                 self._settings = DEFAULT_SETTINGS.copy()
                 self._settings.update(data)
         except json.JSONDecodeError as e:
-            raise ConfigError(f"Falha ao analisar o arquivo de configuração: {e}") from e
+            raise ConfigError(f"Falha ao carregar configurações: {e}") from e
         except Exception as e:
-            raise ConfigError(f"Erro ao carregar a configuração: {e}") from e
+            raise ConfigError(f"Falha ao carregar configurações: {e}") from e
 
     def save(self) -> None:
         """Saves current configuration to the config path."""
@@ -53,7 +53,7 @@ class ConfigManager:
             with open(self.config_path, "w", encoding="utf-8") as f:
                 json.dump(self._settings, f, indent=4)
         except Exception as e:
-            raise ConfigError(f"Falha ao salvar a configuração: {e}") from e
+            raise ConfigError(f"Falha ao salvar configurações: {e}") from e
 
     def get(self, key: str) -> Any:
         """Gets a configuration setting.
@@ -74,7 +74,7 @@ class ConfigManager:
             value: Value to store.
         """
         if key not in DEFAULT_SETTINGS:
-            raise ConfigError(f"Chave de configuração inválida: '{key}'")
+            raise ConfigError(f"Parâmetro inválido: '{key}'")
 
         expected_type = type(DEFAULT_SETTINGS[key])
 
@@ -86,19 +86,19 @@ class ConfigManager:
                 value = int(value)
             except ValueError as e:
                 raise ConfigError(
-                    f"O valor para '{key}' deve ser do tipo {expected_type.__name__}, mas obteve {type(value).__name__}"
+                    f"Tipo de dado inválido para o parâmetro '{key}'"
                 ) from e
         elif expected_type is float and isinstance(value, str):
             try:
                 value = float(value)
             except ValueError as e:
                 raise ConfigError(
-                    f"O valor para '{key}' deve ser do tipo {expected_type.__name__}, mas obteve {type(value).__name__}"
+                    f"Tipo de dado inválido para o parâmetro '{key}'"
                 ) from e
 
         if not isinstance(value, expected_type):
             raise ConfigError(
-                f"O valor para '{key}' deve ser do tipo {expected_type.__name__}, mas obteve {type(value).__name__}"
+                f"Tipo de dado inválido para o parâmetro '{key}'"
             )
 
         self._settings[key] = value

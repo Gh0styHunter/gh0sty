@@ -14,7 +14,7 @@ def run_concurrently(
     tasks: list[T],
     worker_func: Callable[[T], R],
     max_workers: int = 10,
-    description: str = "Processando...",
+    description: str = "Executando...",
 ) -> list[R]:
     """Runs tasks concurrently using ThreadPoolExecutor while displaying a Rich progress bar.
 

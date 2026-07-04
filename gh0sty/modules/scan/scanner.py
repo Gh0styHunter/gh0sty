@@ -34,7 +34,7 @@ class AssetScanner:
 
         if not is_ip and not is_domain:
             raise ValidationError(
-                f"Formato de alvo inválido: '{raw_target}'. Deve ser um domínio ou endereço IP válido."
+                f"Alvo inválido: '{raw_target}'"
             )
 
         try:
@@ -43,7 +43,7 @@ class AssetScanner:
             logger.error(str(e))
             raise
 
-        logger.info(f"Validação do alvo do inventário: [bold cyan]{target}[/bold cyan]")
+        logger.info("Coletando informações do alvo...")
 
         resolved_ips: list[str] = []
         hostname: str = "Desconhecido"
@@ -53,9 +53,9 @@ class AssetScanner:
             resolved_host = net.reverse_resolve(target)
             if resolved_host:
                 hostname = resolved_host
-                logger.info(f"Nome do host resolvido a partir do IP: [cyan]{hostname}[/cyan]")
+                logger.info("Coletando informações do alvo...")
             else:
-                logger.info("A consulta DNS reversa não retornou nenhum nome de host.")
+                logger.debug("DNS reverso não retornou nenhum hostname.")
         else:
             hostname = target
             resolution = net.resolve_host(target)
@@ -63,9 +63,9 @@ class AssetScanner:
             resolved_ips.extend(resolution["ipv6"])
 
             if not resolved_ips:
-                raise ScanError(f"Não foi possível resolver IPs para o domínio '{target}'. Verifique a conectividade.")
+                raise ScanError(f"Falha na resolução de DNS para '{target}'")
 
-            logger.info(
+            logger.debug(
                 f"IPs resolvidos para o domínio: " f"IPv4={resolution['ipv4']}, IPv6={resolution['ipv6']}"
             )
 
@@ -73,10 +73,7 @@ class AssetScanner:
 
         threads = config_manager.get("threads")
         timeout = config_manager.get("timeout")
-        logger.info(
-            f"Escaneando {len(ports)} portas em {len(resolved_ips)} IP(s) "
-            f"usando {threads} threads (tempo limite={timeout}s)..."
-        )
+        logger.info("Verificando portas TCP...")
 
         tasks: list[tuple[str, int]] = []
         for ip in resolved_ips:
@@ -98,7 +95,7 @@ class AssetScanner:
         )
 
         duration = timer.stop()
-        logger.info(f"Varredura concluída em {duration:.2f} segundos.")
+        logger.debug(f"Varredura concluída em {duration:.2f} segundos.")
 
         open_ports: list[dict[str, Any]] = [res for res in scan_results if res is not None]
 
@@ -123,29 +120,30 @@ class AssetScanner:
             from gh0sty.modules.report.manager import ReportGenerator
 
             try:
+                logger.info("Gerando relatório...")
                 generator = ReportGenerator(
                     session_dict=session.to_dict(), module_name="scan", target=target
                 )
                 generator.generate(out_format, args.output)
                 console.print(
-                    f"\n[bold green]Relatório exportado com sucesso para {args.output} ({out_format})[/bold green]"
+                    f"\n[bold green]Relatório gerado em: {args.output}[/bold green]"
                 )
             except Exception as e:
-                logger.error(f"Falha ao gerar a exportação do relatório: {e}")
-                raise ScanError(f"Falha na geração do relatório: {e}") from e
+                logger.error(f"Falha ao gerar relatório: {e}")
+                raise ScanError(f"Falha ao gerar relatório: {e}") from e
 
     def _print_target_panel(self, target: str, hostname: str, resolved_ips: list[str]) -> None:
         """Presents summary metadata about the resolved asset."""
         ips_str = ", ".join(resolved_ips)
         panel_content = (
-            f"[bold green]Host Alvo:[/bold green] {target}\n"
-            f"[bold green]Nome Resolvido:[/bold green] {hostname}\n"
-            f"[bold green]IPs Identificados:[/bold green] {ips_str}"
+            f"[bold green]Alvo:[/bold green] {target}\n"
+            f"[bold green]Hostname:[/bold green] {hostname}\n"
+            f"[bold green]IPs:[/bold green] {ips_str}"
         )
         panel = Panel(
             panel_content,
             border_style="cyan",
-            title="Resumo de Identificação e Validação de Ativos",
+            title="Informações Coletadas",
             expand=False,
         )
         console.print(panel)
@@ -153,17 +151,17 @@ class AssetScanner:
     def _display_results(self, open_ports: list[dict[str, Any]], duration: float) -> None:
         """Renders open ports details in a clean table."""
         if not open_ports:
-            console.print("\n[bold yellow]Varredura concluída. Nenhuma porta aberta identificada.[/bold yellow]")
+            console.print("\n[bold yellow]Nenhuma porta aberta encontrada.[/bold yellow]")
             return
 
         table = Table(
-            title=f"Resumo de Portas Abertas (Encontrada(s) {len(open_ports)} porta(s) TCP aberta(s))",
+            title=f"Portas Abertas ({len(open_ports)} encontradas)",
             border_style="cyan",
         )
-        table.add_column("IP Alvo", style="cyan")
+        table.add_column("IP", style="cyan")
         table.add_column("Porta", style="bold green", justify="right")
         table.add_column("Estado", style="bold white")
-        table.add_column("Nome do Serviço", style="white")
+        table.add_column("Serviço", style="white")
 
         for entry in open_ports:
             state_display = "aberta" if entry["state"] == "open" else entry["state"]

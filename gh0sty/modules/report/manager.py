@@ -63,7 +63,7 @@ class ReportGenerator:
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
         except Exception as e:
-            raise ReportError(f"Não foi possível criar a estrutura de diretórios de saída: {e}") from e
+            raise ReportError(f"Falha ao criar diretório de saída: {e}") from e
 
         writers: Dict[str, type[ReportWriter]] = {
             "json": JSONWriter,
@@ -78,13 +78,13 @@ class ReportGenerator:
 
         writer_cls = writers.get(fmt)
         if not writer_cls:
-            raise ReportError(f"Tipo de formato de relatório não suportado: '{format_type}'")
+            raise ReportError(f"Formato de relatório não suportado: '{format_type}'")
 
         try:
             writer = writer_cls()
             writer.write(path, self.data, self.module_name, self.target, self.timestamp)
         except Exception as e:
-            raise ReportError(f"Falha ao compilar o formato de relatório {format_type.upper()}: {e}") from e
+            raise ReportError(f"Falha ao gerar relatório {format_type.upper()}: {e}") from e
 
 
 class ReportCommand(BaseModule):
@@ -111,17 +111,17 @@ class ReportCommand(BaseModule):
         """Executes the report compiler subcommand."""
         input_path = Path(args.input)
         if not input_path.exists():
-            raise ValidationError(f"O arquivo de entrada não existe: '{args.input}'")
+            raise ValidationError(f"Arquivo não encontrado: '{args.input}'")
 
-        logger.info(f"Carregando sessão de varredura bruta de: [bold cyan]{args.input}[/bold cyan]")
+        logger.info("Gerando relatório...")
 
         try:
             with open(input_path, encoding="utf-8") as f:
                 raw_data = json.load(f)
         except json.JSONDecodeError as e:
-            raise ReportError(f"O arquivo de entrada não é um JSON válido: {e}") from e
+            raise ReportError(f"Arquivo de entrada inválido: {e}") from e
         except Exception as e:
-            raise ReportError(f"Falha ao ler o arquivo de entrada: {e}") from e
+            raise ReportError(f"Falha ao ler arquivo de entrada: {e}") from e
 
         module_name = ""
         target = "Alvo Desconhecido"
@@ -150,10 +150,10 @@ class ReportCommand(BaseModule):
             }
 
         if not module_name:
-            raise ReportError("Não foi possível determinar o módulo de varredura de origem a partir do JSON de entrada.")
+            raise ReportError("Falha ao determinar o módulo de origem")
 
-        logger.info(
-            f"Módulo detectado: [green]{module_name}[/green] | Alvo: [cyan]{target}[/cyan]"
+        logger.debug(
+            f"Módulo: {module_name} | Alvo: {target}"
         )
 
         generator = ReportGenerator(
@@ -161,5 +161,5 @@ class ReportCommand(BaseModule):
         )
         generator.generate(args.format, args.output)
         console.print(
-            f"[bold green]Sucesso:[/bold green] Relatório compilado salvo em [cyan]{args.output}[/cyan]"
+            f"[bold green]Sucesso:[/bold green] Relatório gerado em: [cyan]{args.output}[/cyan]"
         )

@@ -47,4 +47,4 @@ def setup_logging(verbose: bool = False) -> None:
         file_handler.setFormatter(file_formatter)
         logger.addHandler(file_handler)
     except Exception as e:
-        logger.warning(f"Não foi possível criar o manipulador de log em arquivo: {e}. Registrando apenas no console.")
+        logger.warning(f"Falha ao inicializar escrita de logs em arquivo: {e}")

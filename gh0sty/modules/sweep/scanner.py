@@ -30,11 +30,11 @@ class WebSweepScanner:
         if not target.endswith("/"):
             target += "/"
 
-        logger.info(f"Iniciando varredura web no alvo: [bold cyan]{target}[/bold cyan]")
+        logger.info("Executando varredura web...")
 
         # Load paths wordlist
         paths = load_wordlist(args.wordlist)
-        logger.info(f"Carregados {len(paths)} caminhos para auditoria.")
+        logger.info(f"Lista de {len(paths)} caminhos carregada.")
 
         threads = config_manager.get("threads")
         timeout = config_manager.get("timeout")
@@ -64,11 +64,11 @@ class WebSweepScanner:
             tasks=tasks,
             worker_func=worker,
             max_workers=threads,
-            description="Varredura Web Sweep",
+            description="Varredura de Diretórios",
         )
 
         duration = timer.stop()
-        logger.info(f"Sweep concluído em {duration:.2f} segundos.")
+        logger.debug(f"Sweep concluído em {duration:.2f} segundos.")
 
         # Aggregate findings
         findings: list[dict[str, Any]] = [res for res in raw_results if res is not None]
@@ -90,32 +90,33 @@ class WebSweepScanner:
             from gh0sty.modules.report.manager import ReportGenerator
 
             try:
+                logger.info("Gerando relatório...")
                 generator = ReportGenerator(
                     session_dict=session.to_dict(), module_name="sweep", target=target
                 )
                 generator.generate(out_format, args.output)
                 console.print(
-                    f"\n[bold green]Relatório exportado com sucesso para {args.output} ({out_format})[/bold green]"
+                    f"\n[bold green]Relatório gerado em: {args.output}[/bold green]"
                 )
             except Exception as e:
-                logger.error(f"Falha ao gerar a exportação do relatório: {e}")
-                raise ScanError(f"Falha na geração do relatório: {e}") from e
+                logger.error(f"Falha ao gerar relatório: {e}")
+                raise ScanError(f"Falha ao gerar relatório: {e}") from e
 
     def _display_results(self, findings: list[dict[str, Any]]) -> None:
         """Presents active web sweep outcomes in a table."""
         if not findings:
             console.print(
-                "\n[bold yellow]Sweep concluído. Nenhum recurso ativo resolvido.[/bold yellow]"
+                "\n[bold yellow]Nenhum diretório encontrado.[/bold yellow]"
             )
             return
 
         table = Table(
-            title=f"Descobertas do Web Sweep (Recursos ativos: {len(findings)})",
+            title=f"Diretórios Encontrados ({len(findings)})",
             border_style="cyan",
         )
-        table.add_column("URL do Recurso", style="cyan")
-        table.add_column("Código de Status", style="bold green", justify="center")
-        table.add_column("Tamanho da Resposta (Bytes)", style="white", justify="right")
+        table.add_column("URL", style="cyan")
+        table.add_column("Status", style="bold green", justify="center")
+        table.add_column("Tamanho (Bytes)", style="white", justify="right")
 
         for f in findings:
             status = f.get("status_code", 0)

@@ -38,9 +38,9 @@ class ConfigCommand(BaseModule):
     def _display_config(self) -> None:
         """Displays config manager properties in a table."""
         all_settings = config_manager.get_all()
-        table = Table(title="Configurações do gh0sty", border_style="cyan")
-        table.add_column("Chave de Configuração", style="bold green")
-        table.add_column("Valor Atual", style="white")
+        table = Table(title="Parâmetros de Configuração", border_style="cyan")
+        table.add_column("Parâmetro", style="bold green")
+        table.add_column("Valor", style="white")
 
         for key, val in all_settings.items():
             table.add_row(key, str(val))
@@ -52,7 +52,7 @@ class ConfigCommand(BaseModule):
         try:
             config_manager.set(key, value)
             console.print(
-                f"[bold green]Sucesso:[/bold green] A chave de configuração '[cyan]{key}[/cyan]' foi atualizada para '[yellow]{value}[/yellow]'"
+                f"[bold green]Sucesso:[/bold green] Parâmetro '[cyan]{key}[/cyan]' atualizado para '[yellow]{value}[/yellow]'"
             )
         except ConfigError as e:
             console.print(f"[bold red]Erro de Configuração:[/bold red] {e}")
