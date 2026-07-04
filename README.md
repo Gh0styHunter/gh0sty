@@ -43,23 +43,33 @@ A base de código está organizada em camadas de componentes isoladas para garan
 
 ## 📦 Instalação
 
-Para instalar o **gh0sty** e disponibilizar o comando `gh0sty` globalmente no sistema:
-
 1. **Clone o repositório**:
    ```bash
-   git clone https://github.com/Gh0styHunter/gh0sty.git gh0sty
+   git clone https://github.com/Gh0styHunter/gh0sty.git
    cd gh0sty
    ```
 
-2. **Instale o pacote no seu ambiente Python**:
-   ```bash
-   pip install -e .
-   ```
-   *(Caso queira instalar dependências de desenvolvimento, use: `pip install -e ".[dev]"`)*
+2. **Instale o pacote**:
 
-Após a instalação, o executável `gh0sty` ficará disponível globalmente. Você poderá rodar a ferramenta diretamente de qualquer diretório sem precisar ativar manualmente o ambiente virtual ou acessar a pasta do projeto:
+   **Kali Linux (instalação global):**
+   ```bash
+   sudo python3 -m pip install -e . --break-system-packages
+   ```
+
+   > O parâmetro `--break-system-packages` é necessário nas versões recentes do Kali Linux devido à proteção do Python (PEP 668), que impede instalações globais com `pip` por padrão.
+
+Após a instalação, o comando `gh0sty` ficará disponível globalmente e poderá ser executado de qualquer diretório:
+
 ```bash
-gh0sty scan -t 192.168.1.10
+gh0sty
+```
+
+## 🛠️ Dependências de desenvolvimento
+
+Caso queira instalar também as dependências de desenvolvimento:
+
+```bash
+sudo python3 -m pip install -e ".[dev]" --break-system-packages
 ```
 
 ---
