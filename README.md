@@ -47,7 +47,7 @@ Para instalar o **gh0sty** globalmente ou em seu ambiente atual:
 
 1. **Clone o repositório**:
    ```bash
-   git clone https://github.com/Gh0styHunter/gh0sty.git
+   git clone https://github.com/Gh0styHunter/gh0sty.git gh0sty
    cd gh0sty
    ```
 
